@@ -14,7 +14,8 @@ class DatabaseSetting(BaseSettings):
         extra="ignore"
     )
     
+    @property
     def POSTGRES_URL(self):
-        return f"postgresql+ayncpg://{self.POSTGRE_USER_NAME}:{self.POSTGRE_PASSWORD}@{self.POSTGRE_SERVER}:{self.POSTGRE_PORT}/{self.POSTGRE_DB}"
+        return f"postgresql+asyncpg://{self.POSTGRE_USER_NAME}:{self.POSTGRE_PASSWORD}@{self.POSTGRE_SERVER}:{self.POSTGRE_PORT}/{self.POSTGRE_DB}"
     
-setting = DatabaseSetting()
+settings = DatabaseSetting()

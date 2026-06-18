@@ -1,2 +1,5 @@
 fastapi[all]
 scalar-fastapi
+sqlalchemy
+sqlmodel
+asyncpg

@@ -2,15 +2,24 @@ from fastapi import FastAPI
 from .schemas import ReadTask
 from typing import Any
 from scalar_fastapi import get_scalar_api_reference
+from app.session import SessionDep, create_tables
+from app.models import Task
+from contextlib import asynccontextmanager
 
+@asynccontextmanager
+async def lifespan_handler(app: FastAPI):
+    await create_tables()
+    yield
 
-app = FastAPI()
+app = FastAPI(
+    # Server start/stop listener
+    lifespan=lifespan_handler,
+)
 
 @app.get("/")
-def read_task(task_id: int) -> Any:
-    return {
-        f"we did it, this is task {task_id}"
-    }
+async def read_task(task_id: int, session: SessionDep):
+    task = session.get(Task, id)
+    return task
 
 
 # @app.get()
