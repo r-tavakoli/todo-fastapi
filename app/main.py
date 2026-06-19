@@ -1,38 +1,22 @@
 from fastapi import FastAPI
-from .schemas import ReadTask
-from typing import Any
 from scalar_fastapi import get_scalar_api_reference
-from app.session import SessionDep, create_tables
-from app.models import Task
+from app.db.session import create_tables
 from contextlib import asynccontextmanager
+from app.api.v1.router import v1_router
+
 
 @asynccontextmanager
 async def lifespan_handler(app: FastAPI):
     await create_tables()
     yield
 
+
 app = FastAPI(
     # Server start/stop listener
     lifespan=lifespan_handler,
 )
 
-@app.get("/")
-async def read_task(task_id: int, session: SessionDep):
-    task = session.get(Task, id)
-    return task
-
-
-# @app.get()
-# def create_task():
-#     pass
-
-# @app.get()
-# def update_task():
-#     pass
-
-# @app.get()
-# def delete_task():
-#     pass
+app.include_router(v1_router, prefix="/api/v1")
 
 
 ### Scalar API Documentation
