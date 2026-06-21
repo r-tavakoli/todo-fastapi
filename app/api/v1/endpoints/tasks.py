@@ -1,29 +1,34 @@
 from typing import Annotated
-
+from app.core.exceptions import BadRequestException
 from fastapi import APIRouter, Depends
-from fastapi import HTTPException, status
+from fastapi import status
 from app.services.tasks import TaskService
-from app.schemas.tasks import ReadTask, CreateTask, CreateeTaskResponse
+from app.schemas.tasks import ReadTaskResponse, CreateTask, CreateTaskResponse, UpdateTask, UpdateTaskResponse, DeleteTaskResponse
 
 
-router = APIRouter(tags=["task"])
+router = APIRouter()
 
 ServiceDep = Annotated[TaskService, Depends()]
 
 @router.get("/")
-async def get_task(task_id: int, service: ServiceDep) -> ReadTask:
+async def get_task(task_id: int, service: ServiceDep) -> ReadTaskResponse:
     task = await service.get(task_id)
-    if task is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"id ({task_id}) does not exist"
-        )
     return task
 
-@router.post("/", status_code=status.HTTP_201_CREATED)
-async def post_task(task: CreateTask, service: ServiceDep) -> CreateeTaskResponse:
-    return await service.add(task)
+@router.post("/add", status_code=status.HTTP_201_CREATED)
+async def create_task(create_task: CreateTask, service: ServiceDep) -> CreateTaskResponse:
+    return await service.add(create_task)
 
+@router.patch("/update")
+async def update_task(id: int, update_task: UpdateTask, service: ServiceDep) -> UpdateTaskResponse:
+    task = update_task.model_dump(exclude_none=True)
+    if not task:
+        raise BadRequestException()
+    return await service.update(id, task)
+
+@router.delete("/delete")
+async def delete_task(id: int, service: ServiceDep) -> DeleteTaskResponse:
+    return await service.delete(id)
 
 # @app.get()
 # def create_task():
