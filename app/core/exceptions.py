@@ -41,3 +41,11 @@ class BadRequestException(HTTPException):
                 }
             }
         )
+
+class InvalidCredentialsException(HTTPException):
+    def __init__(self, message: str = "Invalid username or password"):
+        super().__init__(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=message,
+            headers={"WWW-Authenticate": "Bearer"},
+        )
