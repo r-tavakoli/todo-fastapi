@@ -31,7 +31,7 @@ class UserService:
         return user
     
     
-    async def create_token(self, user_name, password) -> User:
+    async def create_token(self, user_name, password) -> str:
         query_result = await self.session.execute(
             select(User).where(User.user_name == user_name)
         )
@@ -53,3 +53,13 @@ class UserService:
         )
         
         return token
+    
+    def decode_access_token(self, token: str) -> dict | None:
+        try:
+            return jwt.decode(
+                jwt=token,
+                key=security_settings.JWT_SECRET_KEY,
+                algorithms=[security_settings.JWT_ALGORITHM]
+            )
+        except jwt.PyJWTError:
+            return None
