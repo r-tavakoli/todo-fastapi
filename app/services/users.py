@@ -4,9 +4,9 @@ from app.schemas.users import CreateUser
 from passlib.context import CryptContext
 from sqlalchemy import select
 from app.core.exceptions import InvalidCredentialsException
-from app.config import security_settings
 import jwt
-from datetime import datetime, timedelta
+from datetime import timedelta
+from app.utils import encode_access_token, decode_access_token
 
 password_context = CryptContext(
     schemes=["pbkdf2_sha256"],
@@ -18,6 +18,11 @@ class UserService:
     
     def __init__(self, session: SessionDep):
         self.session = session
+        
+    async def get(self, id: int) -> User:
+        user = await self.session.get(User, id)
+        
+        return user        
     
     async def add(self, create_user: CreateUser) -> User:
         user = User(
@@ -41,25 +46,12 @@ class UserService:
         if user is None or not password_context.verify(password, user.password):
             raise InvalidCredentialsException()
         
-        token = jwt.encode(
-            payload={
-                "user": {
-                    "name": user.user_name,
-                },
-                "exp": datetime.now() + timedelta(days=1)
-            },
-            algorithm=security_settings.JWT_ALGORITHM,
-            key=security_settings.JWT_SECRET_KEY
-        )
+        token = encode_access_token(user.id, user.user_name, timedelta(days=1))
         
         return token
     
-    def decode_access_token(self, token: str) -> dict | None:
+    def decode_token(self, token: str) -> dict | None:
         try:
-            return jwt.decode(
-                jwt=token,
-                key=security_settings.JWT_SECRET_KEY,
-                algorithms=[security_settings.JWT_ALGORITHM]
-            )
+            return decode_access_token(token)
         except jwt.PyJWTError:
             return None

@@ -1,6 +1,8 @@
 from typing import Annotated
 from fastapi import APIRouter, Depends
+from app.api.dependencies import UserDep
 from app.core.exceptions import InvalidCredentialsException
+from app.models.users import User
 from app.services.users import UserService
 from app.schemas.users import CreateUser, CreateUserResponse
 from fastapi.security import OAuth2PasswordRequestForm
@@ -23,15 +25,19 @@ async def create_token(request_form: Annotated[OAuth2PasswordRequestForm, Depend
         "type": "jwt"
     }
 
-@router.post("/test") 
-def test(token: Annotated[str, Depends(oauth2_scheme)], service: ServiceDep):
-    token = service.decode_access_token(token)
+# @router.post("/test") 
+# async def test(token: Annotated[str, Depends(oauth2_scheme)], service: ServiceDep) -> User:
+#     data = service.decode_token(token)
     
-    if token is None:
-        raise InvalidCredentialsException(message="Invalid access token")
+#     if data is None:
+#         raise InvalidCredentialsException(message="Invalid access token")
     
-    return {
-        "details": "Successfully authenticated"
-    }
+#     user = await service.get(data["user"]["id"])
     
+#     return user
+    
+    
+# @router.post("/test2") 
+# async def test2(user: UserDep, service: ServiceDep) -> User:
+#     return user
     

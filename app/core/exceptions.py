@@ -49,3 +49,12 @@ class InvalidCredentialsException(HTTPException):
             detail=message,
             headers={"WWW-Authenticate": "Bearer"},
         )
+        
+        
+class NotAuthenticatedException(HTTPException):
+    def __init__(self, message: str = "Not Authenticated"):
+        super().__init__(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=message,
+            headers={"WWW-Authenticate": "Bearer"},
+        )
