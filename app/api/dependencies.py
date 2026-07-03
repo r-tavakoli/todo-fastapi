@@ -14,7 +14,7 @@ def get_access_token(token: Annotated[str, Depends(oauth2_scheme)]) -> dict:
     data = decode_access_token(token)
     
     if data is None:
-        raise InvalidCredentialsException(message="Invalid access token")
+        raise InvalidCredentialsException(message="Invalid or expired access token")
     
     return data
 

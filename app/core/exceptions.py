@@ -58,3 +58,11 @@ class NotAuthenticatedException(HTTPException):
             detail=message,
             headers={"WWW-Authenticate": "Bearer"},
         )
+
+class ExpiredTokenException(HTTPException):
+    def __init__(self, message: str = "Token has expired"):
+        super().__init__(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=message,
+            headers={"WWW-Authenticate": "Bearer"},
+        )
