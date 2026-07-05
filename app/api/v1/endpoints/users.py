@@ -1,6 +1,6 @@
 from typing import Annotated
 from fastapi import APIRouter, Depends
-from app.api.dependencies import UserDep
+from app.api.dependencies import UserDep, get_access_token
 from app.core.exceptions import InvalidCredentialsException
 from app.models.users import User
 from app.services.users import UserService
@@ -17,13 +17,17 @@ ServiceDep = Annotated[UserService, Depends()]
 async def register_user(create_task: CreateUser, service: ServiceDep) -> CreateUserResponse:
     return await service.add(create_task)
 
-@router.post("/token")
-async def create_token(request_form: Annotated[OAuth2PasswordRequestForm, Depends()], service: ServiceDep) -> dict[str, str]:
+@router.post("/login")
+async def login_in(request_form: Annotated[OAuth2PasswordRequestForm, Depends()], service: ServiceDep) -> dict[str, str]:
     token = await service.create_token(request_form.username, request_form.password)
     return {
         "access_token": token,
         "type": "jwt"
     }
+    
+@router.get("/logout")
+async def login_out(token_data: Annotated[dict, Depends(get_access_token)]) -> dict[str, str]:
+    return token_data["jit"]
 
 # @router.post("/test") 
 # async def test(token: Annotated[str, Depends(oauth2_scheme)], service: ServiceDep) -> User:

@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 import jwt
 from app.config import security_settings
 from app.core.exceptions import ExpiredTokenException
+from uuid import uuid4
 
 def decode_access_token(token: str) -> dict | None:
     try:
@@ -22,6 +23,7 @@ def encode_access_token(id: int, user_name: str, expiry: timedelta) -> str:
             "user": {
                 "user_name": user_name,
                 "id": id,
+                "jit": str(uuid4())
             },
             "exp": datetime.now() + expiry
         },
