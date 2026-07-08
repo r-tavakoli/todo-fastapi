@@ -23,7 +23,7 @@ def encode_access_token(id: int, user_name: str, expiry: timedelta) -> str:
             "user": {
                 "user_name": user_name,
                 "id": id,
-                "jit": str(uuid4())
+                "jti": str(uuid4())
             },
             "exp": datetime.now() + expiry
         },

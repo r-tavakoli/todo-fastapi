@@ -14,12 +14,22 @@ class DatabaseSettings(BaseSettings):
     POSTGRE_USER_NAME: str
     POSTGRE_PASSWORD: str
     
+    REDIS_SERVER: str
+    REDIS_PORT: int
+    REDIS_DB: int
+    REDIS_USER_NAME: str
+    REDIS_PASSWORD: str
+    
     model_config = _setting_config_dict
     
     @property
     def POSTGRES_URL(self):
         return f"postgresql+asyncpg://{self.POSTGRE_USER_NAME}:{self.POSTGRE_PASSWORD}@{self.POSTGRE_SERVER}:{self.POSTGRE_PORT}/{self.POSTGRE_DB}"
-    
+
+    @property
+    def REDIS_URL(self):
+        return f"redis://{self.REDIS_USER_NAME}:{self.REDIS_PASSWORD}@{self.REDIS_SERVER}:{self.REDIS_PORT}/{self.REDIS_DB}"
+        
     
 class SecuritySettings(BaseSettings):
     JWT_ALGORITHM: str

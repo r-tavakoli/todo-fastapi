@@ -6,14 +6,15 @@ from fastapi import Depends
 from app.core.security import oauth2_scheme
 from app.models.users import User
 from app.utils import decode_access_token
+from app.db.redis import jti_is_blacklisted
 
 SessionDep = Annotated[AsyncSession, Depends(get_session)]
 
 # access token dependency
-def get_access_token(token: Annotated[str, Depends(oauth2_scheme)]) -> dict:
+async def get_access_token(token: Annotated[str, Depends(oauth2_scheme)]) -> dict:
     data = decode_access_token(token)
-    
-    if data is None:
+
+    if data is None or await jti_is_blacklisted(data["user"]["jti"]):
         raise InvalidCredentialsException(message="Invalid or expired access token")
     
     return data

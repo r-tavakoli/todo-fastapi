@@ -1,10 +1,6 @@
-from typing import Annotated
+from fastapi.security import OAuth2PasswordBearer
 
-from fastapi import Depends
-from fastapi.security import OAuth2PasswordBearer, HTTPBearer
-from app.core.exceptions import NotAuthenticatedException
-
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl='/api/v1/users/token')
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl='/api/v1/users/login')
 
 
 # no using this just for knowing how it works, i wrote this part

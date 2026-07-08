@@ -7,7 +7,7 @@ from app.services.users import UserService
 from app.schemas.users import CreateUser, CreateUserResponse
 from fastapi.security import OAuth2PasswordRequestForm
 from app.core.security import oauth2_scheme
-
+from app.db.redis import add_jti_to_blacklist
 
 router = APIRouter()
 
@@ -18,7 +18,7 @@ async def register_user(create_task: CreateUser, service: ServiceDep) -> CreateU
     return await service.add(create_task)
 
 @router.post("/login")
-async def login_in(request_form: Annotated[OAuth2PasswordRequestForm, Depends()], service: ServiceDep) -> dict[str, str]:
+async def login(request_form: Annotated[OAuth2PasswordRequestForm, Depends()], service: ServiceDep) -> dict[str, str]:
     token = await service.create_token(request_form.username, request_form.password)
     return {
         "access_token": token,
@@ -26,8 +26,11 @@ async def login_in(request_form: Annotated[OAuth2PasswordRequestForm, Depends()]
     }
     
 @router.get("/logout")
-async def login_out(token_data: Annotated[dict, Depends(get_access_token)]) -> dict[str, str]:
-    return token_data["jit"]
+async def logout(token_data: Annotated[dict, Depends(get_access_token)]) -> dict[str, str]:
+    await add_jti_to_blacklist(token_data["user"]["jti"])
+    return {
+        "detail": "Successfully logged out"
+    }
 
 # @router.post("/test") 
 # async def test(token: Annotated[str, Depends(oauth2_scheme)], service: ServiceDep) -> User:
