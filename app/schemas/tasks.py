@@ -1,7 +1,9 @@
 from pydantic import BaseModel, Field
 from typing import Optional
 from datetime import datetime
+from app.models.users import User
 from .base import CreateResponse, UpdateResponse, DeleteResponse
+from .users import UserResponse
 
 
 class BaseTask(BaseModel):
@@ -11,6 +13,7 @@ class BaseTask(BaseModel):
     due_date_time: datetime
         
 class ReadTaskResponse(BaseTask):
+    user: UserResponse
     is_deleted: bool
     created_on: datetime
     modified_on: datetime

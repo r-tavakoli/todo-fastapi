@@ -1,4 +1,4 @@
-from sqlmodel import Field
+from sqlmodel import Field, Relationship
 from datetime import datetime
 from .base import BaseModel, TODO_SCHEMA
 
@@ -12,6 +12,13 @@ class Task(BaseModel, table=True):
     priority_id: int = Field(foreign_key=f"{TODO_SCHEMA}.priority.id", default=1)
     due_date_time: datetime
     is_deleted: bool = Field(default=False)
+    user_id: int = Field(foreign_key=f"{TODO_SCHEMA}.user.id")
+    
+    user: "User" = Relationship(
+        back_populates="tasks",
+        sa_relationship_kwargs={"lazy": "selectin"}
+    )
+    
 
 class Status(BaseModel, table=True):
     __tablename__ = "status"
