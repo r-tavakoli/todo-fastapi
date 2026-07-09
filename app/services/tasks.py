@@ -1,5 +1,6 @@
 from app.api.dependencies import SessionDep
 from app.models.tasks import Task
+from app.models.users import User
 from app.schemas.tasks import CreateTask, UpdateTask
 from app.core.exceptions import NotFoundException
 
@@ -14,8 +15,8 @@ class TaskService:
             raise NotFoundException("Task", id)
         return task
     
-    async def add(self, create_task: CreateTask) -> Task:
-        task = Task(**create_task.model_dump())
+    async def add(self, create_task: CreateTask, user: User) -> Task:
+        task = Task(**create_task.model_dump(), user_id=user.id)
         self.session.add(task)
         await self.session.commit()
         await self.session.refresh(task)

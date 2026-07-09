@@ -1,4 +1,4 @@
-from sqlmodel import Field
+from sqlmodel import Field, Relationship
 from .base import BaseModel, TODO_SCHEMA
 from pydantic import EmailStr
 
@@ -15,6 +15,11 @@ class User(BaseModel, table=True):
     is_active: bool = Field(default=True)
     is_email_verified: bool = Field(default=False)
     is_deleted: bool = Field(default=False)
+    
+    tasks: list["Task"] = Relationship(
+    back_populates="user",
+    sa_relationship_kwargs={"lazy": "selectin"}
+    )    
     
     @property
     def full_name(self) -> str:

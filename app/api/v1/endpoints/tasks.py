@@ -17,7 +17,7 @@ async def get_task(user: UserDep, task_id: int, service: ServiceDep) -> ReadTask
 
 @router.post("/add", status_code=status.HTTP_201_CREATED)
 async def create_task(user: UserDep, create_task: CreateTask, service: ServiceDep) -> CreateTaskResponse:
-    return await service.add(create_task)
+    return await service.add(create_task, user)
 
 @router.patch("/update")
 async def update_task(user: UserDep, id: int, update_task: UpdateTask, service: ServiceDep) -> UpdateTaskResponse:

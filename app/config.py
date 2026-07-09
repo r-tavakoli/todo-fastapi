@@ -17,8 +17,8 @@ class DatabaseSettings(BaseSettings):
     REDIS_SERVER: str
     REDIS_PORT: int
     REDIS_DB: int
-    REDIS_USER_NAME: str
-    REDIS_PASSWORD: str
+    # REDIS_USER_NAME: str | None
+    # REDIS_PASSWORD: str | None
     
     model_config = _setting_config_dict
     
@@ -28,7 +28,9 @@ class DatabaseSettings(BaseSettings):
 
     @property
     def REDIS_URL(self):
-        return f"redis://{self.REDIS_USER_NAME}:{self.REDIS_PASSWORD}@{self.REDIS_SERVER}:{self.REDIS_PORT}/{self.REDIS_DB}"
+        # connection_url = f"redis://{self.REDIS_USER_NAME}:{self.REDIS_PASSWORD}@{self.REDIS_SERVER}:{self.REDIS_PORT}/{self.REDIS_DB}"
+        connection_url = f"redis://{self.REDIS_SERVER}:{self.REDIS_PORT}/{self.REDIS_DB}"
+        return connection_url
         
     
 class SecuritySettings(BaseSettings):
