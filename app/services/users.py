@@ -6,6 +6,7 @@ from sqlalchemy import select
 from app.core.exceptions import InvalidCredentialsException
 import jwt
 from datetime import timedelta
+from app.services.base import BaseService
 from app.utils import encode_access_token, decode_access_token
 
 password_context = CryptContext(
@@ -14,36 +15,40 @@ password_context = CryptContext(
     deprecated="auto"
 )
 
-class UserService:
+class UserService(BaseService):
     
     def __init__(self, session: SessionDep):
-        self.session = session
+        super().__init__(User, session)
         
     async def get(self, id: int) -> User:
-        user = await self.session.get(User, id)
-        
-        return user        
+        return self._get(User, id)        
     
     async def add(self, create_user: CreateUser) -> User:
         user = User(
             **create_user.model_dump(exclude="password"),
             password = password_context.hash(create_user.password)
         )
-        self.session.add(user)
-        await self.session.commit()
-        await self.session.refresh(user)
+        
+        return await self._add(user)
+    
+    
+    async def _get_by_user_name(self, user_name):
+        query_result = await self.session.execute(
+            select(User).where(User.user_name == user_name)
+        )
+        
+        user = query_result.scalar()  
+        
+        if user is None:
+            raise InvalidCredentialsException()
         
         return user
     
     
     async def create_token(self, user_name, password) -> str:
-        query_result = await self.session.execute(
-            select(User).where(User.user_name == user_name)
-        )
-        
-        user = query_result.scalar()
+        user = await self._get_by_user_name(user_name)
                 
-        if user is None or not password_context.verify(password, user.password):
+        if not password_context.verify(password, user.password):
             raise InvalidCredentialsException()
         
         token = encode_access_token(user.id, user.user_name, timedelta(days=1))
