@@ -1,4 +1,5 @@
-from typing import List
+from typing import Any, Dict, List
+from sqlalchemy import JSON, Column
 from sqlmodel import Field, Relationship, SQLModel
 from datetime import datetime
 from .base import BaseModel, TODO_SCHEMA
@@ -33,6 +34,26 @@ class Task(BaseModel, table=True):
         sa_relationship_kwargs={"lazy": "selectin"}
     )
     
+    task_history: List["TaskHistory"] = Relationship(
+        back_populates="task",
+        sa_relationship_kwargs={"lazy": "selectin"}
+    )   
+    
+    
+class TaskHistory(BaseModel, table=True):
+    __tablename__ = "task_history"
+    __table_args__ = {"schema": TODO_SCHEMA}
+    
+    operation: str = Field(max_length=20, min_length=5)
+    before: Dict[str, Any] = Field(default_factory=dict, sa_column=Column(JSON))
+    after: Dict[str, Any] = Field(default_factory=dict, sa_column=Column(JSON))
+    task_id: int = Field(foreign_key=f"{TODO_SCHEMA}.task.id")
+    user_id: int
+    
+    task: "Task" = Relationship(
+        back_populates="task_history",
+        sa_relationship_kwargs={"lazy": "selectin"}
+    )    
 
 class Status(BaseModel, table=True):
     __tablename__ = "status"

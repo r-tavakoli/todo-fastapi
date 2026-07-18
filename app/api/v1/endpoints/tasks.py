@@ -24,7 +24,7 @@ async def update_task(user: UserDep, id: int, update_task: UpdateTask, service: 
     task = update_task.model_dump(exclude_none=True)
     if not task:
         raise BadRequestException()
-    return await service.update(id, task)
+    return await service.update(id, task, user)
 
 @router.delete("/delete")
 async def delete_task(user: UserDep, id: int, service: ServiceDep) -> DeleteTaskResponse:

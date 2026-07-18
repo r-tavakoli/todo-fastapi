@@ -34,3 +34,5 @@ class BaseModel(SQLModel):
     
     class Config:
         from_attributes = True
+        
+        
