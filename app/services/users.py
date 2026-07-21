@@ -1,4 +1,3 @@
-from app.api.dependencies import SessionDep
 from app.models.users import User
 from app.schemas.users import CreateUser
 from passlib.context import CryptContext
@@ -8,6 +7,8 @@ import jwt
 from datetime import timedelta
 from app.services.base import BaseService
 from app.utils import encode_access_token, decode_access_token
+from sqlalchemy.ext.asyncio import AsyncSession
+
 
 password_context = CryptContext(
     schemes=["pbkdf2_sha256"],
@@ -17,7 +18,7 @@ password_context = CryptContext(
 
 class UserService(BaseService):
     
-    def __init__(self, session: SessionDep):
+    def __init__(self, session: AsyncSession):
         super().__init__(User, session)
         
     async def get(self, id: int) -> User:

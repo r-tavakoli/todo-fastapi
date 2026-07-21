@@ -1,8 +1,12 @@
 from datetime import datetime, timedelta
+from pathlib import Path
 import jwt
 from app.config import security_settings
 from app.core.exceptions import ExpiredTokenException
 from uuid import uuid4
+
+APP_DIR = Path(__file__).resolve().parent
+TEMPLATE_PATH = APP_DIR.joinpath("templates/email")
 
 def decode_access_token(token: str) -> dict | None:
     try:

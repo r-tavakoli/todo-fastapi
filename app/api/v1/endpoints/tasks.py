@@ -1,33 +1,29 @@
-from typing import Annotated
-from app.core.exceptions import BadRequestException, NotAuthenticatedException
-from fastapi import APIRouter, Depends
+from app.core.exceptions import BadRequestException
+from fastapi import APIRouter
 from fastapi import status
-from app.services.tasks import TaskService
 from app.schemas.tasks import ReadTaskResponse, CreateTask, CreateTaskResponse, UpdateTask, UpdateTaskResponse, DeleteTaskResponse
-from app.api.dependencies import UserDep
+from app.api.dependencies import TaskServiceDep, UserDep
 
 router = APIRouter()
 
-ServiceDep = Annotated[TaskService, Depends()]
-
 @router.get("/")
-async def get_task(user: UserDep, task_id: int, service: ServiceDep) -> ReadTaskResponse:
+async def get_task(user: UserDep, task_id: int, service: TaskServiceDep) -> ReadTaskResponse:
     task = await service.get(task_id)
     return task
 
 @router.post("/add", status_code=status.HTTP_201_CREATED)
-async def create_task(user: UserDep, create_task: CreateTask, service: ServiceDep) -> CreateTaskResponse:
+async def create_task(user: UserDep, create_task: CreateTask, service: TaskServiceDep) -> CreateTaskResponse:
     return await service.add(create_task, user)
 
 @router.patch("/update")
-async def update_task(user: UserDep, id: int, update_task: UpdateTask, service: ServiceDep) -> UpdateTaskResponse:
+async def update_task(user: UserDep, id: int, update_task: UpdateTask, service: TaskServiceDep) -> UpdateTaskResponse:
     task = update_task.model_dump(exclude_none=True)
     if not task:
         raise BadRequestException()
     return await service.update(id, task, user)
 
 @router.delete("/delete")
-async def delete_task(user: UserDep, id: int, service: ServiceDep) -> DeleteTaskResponse:
+async def delete_task(user: UserDep, id: int, service: TaskServiceDep) -> DeleteTaskResponse:
     return await service.delete(id)
 
 # @app.get()

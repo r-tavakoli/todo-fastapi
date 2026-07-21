@@ -1,24 +1,19 @@
 from typing import Annotated
 from fastapi import APIRouter, Depends
-from app.api.dependencies import UserDep, get_access_token
-from app.core.exceptions import InvalidCredentialsException
-from app.models.users import User
-from app.services.users import UserService
+from app.api.dependencies import UserServiceDep, get_access_token
 from app.schemas.users import CreateUser, CreateUserResponse
 from fastapi.security import OAuth2PasswordRequestForm
-from app.core.security import oauth2_scheme
 from app.db.redis import add_jti_to_blacklist
 
 router = APIRouter()
 
-ServiceDep = Annotated[UserService, Depends()]
 
 @router.post("/register")
-async def register_user(create_task: CreateUser, service: ServiceDep) -> CreateUserResponse:
+async def register_user(create_task: CreateUser, service: UserServiceDep) -> CreateUserResponse:
     return await service.add(create_task)
 
 @router.post("/login")
-async def login(request_form: Annotated[OAuth2PasswordRequestForm, Depends()], service: ServiceDep) -> dict[str, str]:
+async def login(request_form: Annotated[OAuth2PasswordRequestForm, Depends()], service: UserServiceDep) -> dict[str, str]:
     token = await service.create_token(request_form.username, request_form.password)
     return {
         "access_token": token,
