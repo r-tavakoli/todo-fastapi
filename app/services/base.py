@@ -1,12 +1,13 @@
 from datetime import datetime
 from typing import TypeVar, Generic, Type, List, Dict, Any
 from sqlmodel import SQLModel
-from app.api.dependencies import SessionDep
+from sqlalchemy.ext.asyncio import AsyncSession
+
 
 
 class BaseService:
     
-    def __init__(self, model:SQLModel, session: SessionDep):
+    def __init__(self, model:SQLModel, session: AsyncSession):
         self.session = session
         self.model = model
         

@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Task Completed{% endblock %}
+
+{% block header %}Task Completed!{% endblock %}
+{% block subtitle %}Great job on completing your task{% endblock %}
+
+{% block content %}
+<div style="text-align: center; padding: 20px 0;">
+    <div style="font-size: 48px; margin-bottom: 20px;">✅</div>
+    <h2 style="color: #2d3748; margin: 0 0 10px;">
+        You've completed!
+    </h2>
+    <p style="color: #4a5568; font-size: 18px; margin: 0;">
+        <strong style="color: #667eea;">"{{ task_title }}"</strong>
+    </p>
+</div>
+
+<div style="background-color: #f0fff4; border: 1px solid #c6f6d5; border-radius: 8px; padding: 20px; margin: 20px 0;">
+    <p style="margin: 0; color: #2f855a; text-align: center;">
+        Task completed
+    </p>
+</div>
+
+<div style="background-color: #f8fafc; border-radius: 8px; padding: 20px; margin: 20px 0;">
+    <table width="100%" cellpadding="8" cellspacing="0" style="font-size: 14px;">
+        <tr>
+            <td style="color: #4a5568; font-weight: 600;">Task:</td>
+            <td style="color: #2d3748;">{{ task_title }}</td>
+        </tr>
+        <tr>
+            <td style="color: #4a5568; font-weight: 600;">Completed On:</td>
+            <td style="color: #2d3748;">{{ now.strftime('%B %d, %Y at %I:%M %p') }}</td>
+        </tr>
+        <tr>
+            <td style="color: #4a5568; font-weight: 600;">Status:</td>
+            <td style="color: #2d3748;">
+                <span style="background: #48bb78; color: white; padding: 3px 12px; border-radius: 20px; font-size: 12px;">
+                    ✅ {{ task_status_id }} (Completed)
+                </span>
+            </td>
+        </tr>
+    </table>
+</div>
+
+{% endblock %}
