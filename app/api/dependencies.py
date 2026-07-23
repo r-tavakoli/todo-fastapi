@@ -39,8 +39,11 @@ def get_task_service(
     return TaskService(session, notification_service)
 
 # user
-def get_user_service(session: SessionDep) -> UserService:
-    return UserService(session)
+def get_user_service(
+    session: SessionDep,
+    notification_service: NotificationService = Depends(get_notification_service)
+) -> UserService:
+    return UserService(session, notification_service)
 
 # dependencies
 UserDep = Annotated[User, Depends(get_user)]

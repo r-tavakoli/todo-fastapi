@@ -1,12 +1,15 @@
 from datetime import datetime, timedelta
 from pathlib import Path
+from itsdangerous import Serializer, URLSafeTimedSerializer, BadSignature, SignatureExpired
 import jwt
 from app.config import security_settings
 from app.core.exceptions import ExpiredTokenException
 from uuid import uuid4
 
 APP_DIR = Path(__file__).resolve().parent
-TEMPLATE_PATH = APP_DIR.joinpath("templates/email")
+TEMPLATE_PATH = APP_DIR.joinpath("templates")
+
+_serializer = URLSafeTimedSerializer(security_settings.JWT_SECRET_KEY)
 
 def decode_access_token(token: str) -> dict | None:
     try:
@@ -35,3 +38,16 @@ def encode_access_token(id: int, user_name: str, expiry: timedelta) -> str:
         key=security_settings.JWT_SECRET_KEY
     )
     return token
+
+
+def generate_url_safe_token(data: dict) -> str:
+    return _serializer.dumps(data)
+
+def decode_url_safe_token(token: str, expiry: timedelta | None = None) -> dict | None:
+    try:
+        return _serializer.loads(
+            token, 
+            max_age=expiry.total_seconds() if expiry else None
+        )
+    except (BadSignature, SignatureExpired):
+        return None

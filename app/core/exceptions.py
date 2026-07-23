@@ -24,10 +24,10 @@ class NotFoundException(HTTPException):
         )
 
 class BadRequestException(HTTPException):
-    def __init__(self):
+    def __init__(self, detail: str = None):
         super().__init__(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="no data provided"
+            detail= detail or "no data provided"
         )
         
     def to_response(self) -> JSONResponse:

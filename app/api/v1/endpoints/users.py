@@ -1,3 +1,4 @@
+from datetime import timedelta
 from typing import Annotated
 from fastapi import APIRouter, Depends
 from app.api.dependencies import UserServiceDep, get_access_token
@@ -25,6 +26,13 @@ async def logout(token_data: Annotated[dict, Depends(get_access_token)]) -> dict
     await add_jti_to_blacklist(token_data["user"]["jti"])
     return {
         "detail": "Successfully logged out"
+    }
+
+@router.get("/verify")
+async def verify(token: str, service: UserServiceDep) -> dict[str, str]:
+    await service.verify_email(token, expiry=timedelta(hours=24))
+    return {
+        "detail": "Account is verified"
     }
 
 # @router.post("/test") 

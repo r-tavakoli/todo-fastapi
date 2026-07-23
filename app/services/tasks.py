@@ -64,5 +64,5 @@ class TaskService(BaseService):
                     "task_status_id": task.status_id,
                     "now": datetime.now()
                 },
-                template_name="email_task.html"
+                template_name="email/email_task.html"
             )

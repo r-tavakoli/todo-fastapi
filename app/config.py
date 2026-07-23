@@ -6,6 +6,13 @@ _setting_config_dict = SettingsConfigDict(
         extra="ignore"
     )
 
+class AppSettings(BaseSettings):
+    APP_NAME: str
+    APP_DOMAIN: str
+    APP_API_VERSION: str
+    
+    model_config = _setting_config_dict   
+
 
 class DatabaseSettings(BaseSettings):
     POSTGRE_SERVER: str
@@ -54,6 +61,7 @@ class NotificationSettings(BaseSettings):
     
     model_config = _setting_config_dict      
         
+app_settings = AppSettings()
 db_settings = DatabaseSettings()
 security_settings = SecuritySettings()
 notification_settings = NotificationSettings()
