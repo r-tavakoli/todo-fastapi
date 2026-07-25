@@ -1,3 +1,5 @@
+from pydantic import EmailStr
+
 from app.models.users import User
 from app.schemas.users import CreateUser
 from passlib.context import CryptContext
@@ -59,11 +61,12 @@ class UserService(BaseService):
             {
                 "email": user.email,
                 "id": user.id
-            }
+            },
+            salt="email_verification"
         )
         
         # Sending verification email
-        await self._notifiy(
+        await self.send_verification_link(
             user,
             verification_url_token=token
         )
@@ -82,6 +85,18 @@ class UserService(BaseService):
             raise InvalidCredentialsException()
         
         return user
+    
+    async def _get_credential_by_email(self, email):
+        query_result = await self.session.execute(
+            select(User).where(User.email == email)
+        )
+        
+        user = query_result.scalar()  
+        
+        if user is None:
+            raise InvalidCredentialsException()
+        
+        return user    
     
     
     async def create_token(self, user_name, password) -> str:
@@ -103,7 +118,8 @@ class UserService(BaseService):
     async def verify_email(self, token: str, expiry: timedelta | None = None):
         token_data = decode_url_safe_token(
             token,
-            expiry
+            expiry=expiry,
+            salt="email_verification",
         )     
         
         if not token_data:
@@ -114,11 +130,11 @@ class UserService(BaseService):
         if not user:
             raise BadRequestException(detail="User not found") 
         
-        user.is_email_verified = True
+        if not user.is_email_verified:
+            user.is_email_verified = True
+            await self._update(user)
         
-        await self._update(user)
-        
-    async def _notifiy(self, user: User, verification_url_token: str):
+    async def send_verification_link(self, user: User, verification_url_token: str):
         if not user.is_email_verified:
             await self.notification_service.send_email(
                 recipients=[user.email],
@@ -131,3 +147,45 @@ class UserService(BaseService):
                 },
                 template_name="email/email_verification.html"
             )
+            
+    async def send_reset_password_link(self, email: EmailStr):
+        user = await self._get_credential_by_email(email)
+        
+        user_data = {
+            "email": user.email,
+            "id": user.id
+        }
+        
+        token = generate_url_safe_token(user_data, salt="password_reset")
+        
+        await self.notification_service.send_email(
+            recipients=[user.email],
+            subject="Reset Password",
+            context={
+                "first_name": user.first_name,
+                "reset_url": f"{app_settings.APP_DOMAIN}/api/{app_settings.APP_API_VERSION}/users/reset_password_form?token={token}",
+                "expiry": "24 hours"
+            },
+            template_name="email/reset_password.html"
+        )
+        
+    async def reset_password(self, token: str, password: str, expiry: timedelta | None = None):
+        token_data = decode_url_safe_token(
+            token,
+            expiry=expiry,
+            salt="password_reset",
+        )     
+        
+        if not token_data:
+            raise BadRequestException(detail="Invalid Token")
+        
+        user = await self._get(token_data["id"])
+        
+        if not user:
+            raise BadRequestException(detail="User not found") 
+        
+        user.password = password_context.hash(password)
+        
+        await self._update(user)
+        
+        
