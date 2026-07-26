@@ -1,13 +1,20 @@
 from datetime import datetime, timedelta
 from pathlib import Path
-from itsdangerous import Serializer, URLSafeTimedSerializer, BadSignature, SignatureExpired
+from uuid import uuid4
+
 import jwt
+from itsdangerous import (
+    BadSignature,
+    SignatureExpired,
+    URLSafeTimedSerializer,
+)
+
 from app.config import security_settings
 from app.core.exceptions import ExpiredTokenException
-from uuid import uuid4
 
 APP_DIR = Path(__file__).resolve().parent
 TEMPLATE_PATH = APP_DIR.joinpath("templates")
+TEMPLATE_EMAIL_PATH = TEMPLATE_PATH.joinpath("email")
 
 _serializer = URLSafeTimedSerializer(security_settings.JWT_SECRET_KEY)
 

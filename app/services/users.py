@@ -1,18 +1,23 @@
-from pydantic import EmailStr
+from datetime import timedelta
 
+import jwt
+from passlib.context import CryptContext
+from pydantic import EmailStr
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.config import app_settings
+from app.core.exceptions import BadRequestException, InvalidCredentialsException
 from app.models.users import User
 from app.schemas.users import CreateUser
-from passlib.context import CryptContext
-from sqlalchemy import select
-from app.core.exceptions import BadRequestException, InvalidCredentialsException
-import jwt
-from datetime import timedelta
 from app.services.base import BaseService
 from app.services.notification import NotificationService
-from app.utils import encode_access_token, decode_access_token, generate_url_safe_token, decode_url_safe_token
-from sqlalchemy.ext.asyncio import AsyncSession
-from app.config import app_settings
-
+from app.utils import (
+    decode_access_token,
+    decode_url_safe_token,
+    encode_access_token,
+    generate_url_safe_token,
+)
 
 password_context = CryptContext(
     schemes=["pbkdf2_sha256"],

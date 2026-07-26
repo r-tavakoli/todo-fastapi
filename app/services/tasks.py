@@ -1,12 +1,15 @@
 from datetime import datetime
 
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.core.exceptions import NotFoundException
 from app.models.tasks import Task, TaskHistory
 from app.models.users import User
 from app.schemas.tasks import CreateTask, UpdateTask
-from app.core.exceptions import NotFoundException
 from app.services.base import BaseService, HistoryTracker
 from app.services.notification import NotificationService
-from sqlalchemy.ext.asyncio import AsyncSession
+from app.worker.task import send_email_through_celery
+
 
 class TaskService(BaseService):
     def __init__(self, session: AsyncSession, notification_service: NotificationService):
@@ -41,7 +44,8 @@ class TaskService(BaseService):
 
         if history:
             await self.add_task_history(history, user.id)
-        await self._notifiy(task, user)
+        self._notifiy_through_celery(task, user) # email using celery
+        await self._notifiy(task, user) # email using background task
 
         return task
     
@@ -55,6 +59,7 @@ class TaskService(BaseService):
         return await self._add(task_history)        
         
     async def _notifiy(self, task: Task, user: User):
+        ''' it uses background task of fastapi '''
         if task.status_id == 3:
             await self.notification_service.send_email(
                 recipients=[user.email],
@@ -64,5 +69,19 @@ class TaskService(BaseService):
                     "task_status_id": task.status_id,
                     "now": datetime.now()
                 },
-                template_name="email/email_task.html"
+                template_name="email_task.html"
+            )
+            
+    def _notifiy_through_celery(self, task: Task, user: User):
+        ''' it uses background task using redis and celery '''
+        if task.status_id == 3:
+            send_email_through_celery.delay(
+                recipients=[user.email],
+                subject="Task is DONE (from celery)",
+                context={
+                    "task_title": task.title,
+                    "task_status_id": task.status_id,
+                    "now": datetime.now()
+                },
+                template_name="email_task.html"
             )
