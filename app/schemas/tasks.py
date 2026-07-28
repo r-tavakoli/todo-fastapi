@@ -1,8 +1,9 @@
-from pydantic import BaseModel, Field
-from typing import Optional
 from datetime import datetime
-from app.models.users import User
-from .base import CreateResponse, UpdateResponse, DeleteResponse
+from typing import Optional
+
+from pydantic import BaseModel, Field
+
+from .base import CreateResponse, DeleteResponse, UpdateResponse
 from .users import UserResponse
 
 

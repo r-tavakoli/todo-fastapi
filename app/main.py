@@ -1,8 +1,11 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from scalar_fastapi import get_scalar_api_reference
-from app.db.session import create_tables
-from contextlib import asynccontextmanager
+
 from app.api.v1.router import v1_router
+from app.core.exceptions import add_exception_handlers
+from app.db.session import create_tables
 
 
 @asynccontextmanager
@@ -10,11 +13,13 @@ async def lifespan_handler(app: FastAPI):
     await create_tables()
     yield
 
-
 app = FastAPI(
     # Server start/stop listener
     lifespan=lifespan_handler,
 )
+
+# exception hanlder
+add_exception_handlers(app)
 
 app.include_router(v1_router, prefix="/api/v1")
 

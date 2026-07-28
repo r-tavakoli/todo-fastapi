@@ -24,7 +24,7 @@ class TaskService(BaseService):
     async def get(self, id: int) -> Task:
         task = await self._get(id)
         if not task or task.is_deleted:
-            raise NotFoundException("Task", id)
+            raise NotFoundException()
         return task
     
     async def add(self, create_task: CreateTask, user: User) -> Task:
@@ -35,7 +35,7 @@ class TaskService(BaseService):
     async def update(self, id: int , update_task: UpdateTask, user: User) -> Task:
         task = await self._get(id)
         if not task or task.is_deleted:
-            raise NotFoundException("Task", id)
+            raise NotFoundException()
         
         before = self.history_tracker.track_history(task)
         task.sqlmodel_update(update_task)
@@ -52,7 +52,7 @@ class TaskService(BaseService):
     async def delete(self, id: int) -> Task:
         task = await self.session.get(Task, id)
         if not task or task.is_deleted:
-            raise NotFoundException("Task", id)
+            raise NotFoundException()
         
     async def add_task_history(self, task_history: TaskHistory, user_id: int):
         task_history = TaskHistory(**task_history.model_dump(), user_id=user_id)      

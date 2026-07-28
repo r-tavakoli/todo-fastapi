@@ -7,7 +7,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import app_settings
-from app.core.exceptions import BadRequestException, InvalidCredentialsException
+from app.core.exceptions import BadRequestException, EmailAlreadyExistsException, InvalidCredentialsException, InvalidTokenException, NotFoundException, UsernameAlreadyExistsException
 from app.models.users import User
 from app.schemas.users import CreateUser
 from app.services.base import BaseService
@@ -42,7 +42,7 @@ class UserService(BaseService):
         existing_user = existing_user.scalar_one_or_none()
         
         if existing_user:
-            raise BadRequestException(detail=f"Username '{create_user.user_name}' is already taken")
+            raise UsernameAlreadyExistsException()
         
         # Check if email already exists
         existing_email = await self.session.execute(
@@ -51,7 +51,7 @@ class UserService(BaseService):
         existing_email = existing_email.scalar_one_or_none()
         
         if existing_email:
-            raise BadRequestException(detail=f"Email '{create_user.email}' is already registered")        
+            raise EmailAlreadyExistsException()        
         
         # Create user
         user = User(
@@ -128,12 +128,12 @@ class UserService(BaseService):
         )     
         
         if not token_data:
-            raise BadRequestException(detail="Invalid Token")
+            raise InvalidTokenException()
         
         user = await self._get(token_data["id"])
         
         if not user:
-            raise BadRequestException(detail="User not found") 
+            raise NotFoundException() 
         
         if not user.is_email_verified:
             user.is_email_verified = True
@@ -182,12 +182,12 @@ class UserService(BaseService):
         )     
         
         if not token_data:
-            raise BadRequestException(detail="Invalid Token")
+            raise InvalidTokenException()
         
         user = await self._get(token_data["id"])
         
         if not user:
-            raise BadRequestException(detail="User not found") 
+            raise NotFoundException() 
         
         user.password = password_context.hash(password)
         

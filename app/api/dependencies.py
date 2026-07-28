@@ -1,15 +1,17 @@
 from typing import Annotated
-from sqlalchemy.ext.asyncio import AsyncSession
-from app.core.exceptions import InvalidCredentialsException
-from app.db.session import get_session
+
 from fastapi import BackgroundTasks, Depends
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.core.exceptions import InvalidTokenException
 from app.core.security import oauth2_scheme
+from app.db.redis import jti_is_blacklisted
+from app.db.session import get_session
 from app.models.users import User
 from app.services.notification import NotificationService
 from app.services.tasks import TaskService
 from app.services.users import UserService
 from app.utils import decode_access_token
-from app.db.redis import jti_is_blacklisted
 
 SessionDep = Annotated[AsyncSession, Depends(get_session)]
 
@@ -18,7 +20,7 @@ async def get_access_token(token: Annotated[str, Depends(oauth2_scheme)]) -> dic
     data = decode_access_token(token)
 
     if data is None or await jti_is_blacklisted(data["user"]["jti"]):
-        raise InvalidCredentialsException(message="Invalid or expired access token")
+        raise InvalidTokenException()
     
     return data
 
