@@ -1,14 +1,16 @@
-from pydantic import BaseModel, Field
-from pydantic import EmailStr
-from .base import CreateResponse
 from datetime import datetime
+
+from pydantic import BaseModel, EmailStr, Field
+
+from .base import CreateResponse
+
 
 class BaseUser(BaseModel):
     first_name: str
     last_name: str
     email: EmailStr
-    user_name: str
-    password: str
+    user_name: str = Field(ge=3)
+    password: str = Field(ge=3)
         
 class ReadUser(BaseUser):
     pass

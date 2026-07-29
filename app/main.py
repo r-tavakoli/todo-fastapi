@@ -5,7 +5,13 @@ from scalar_fastapi import get_scalar_api_reference
 
 from app.api.v1.router import v1_router
 from app.core.exceptions import add_exception_handlers
+from app.core.logging import setup_logging
 from app.db.session import create_tables
+from app.middleware.logging import LoggingMiddleware
+from app.middleware.request_id import RequestIDMiddleware
+from app.middleware.timing import TimingMiddleware
+
+setup_logging()
 
 
 @asynccontextmanager
@@ -17,6 +23,11 @@ app = FastAPI(
     # Server start/stop listener
     lifespan=lifespan_handler,
 )
+
+# middlewares (for logging)
+app.add_middleware(RequestIDMiddleware)
+app.add_middleware(TimingMiddleware)
+app.add_middleware(LoggingMiddleware)
 
 # exception hanlder
 add_exception_handlers(app)

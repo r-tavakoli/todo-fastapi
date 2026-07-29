@@ -1,5 +1,4 @@
 import logging
-from datetime import datetime, timezone
 
 from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.responses import JSONResponse
@@ -110,6 +109,7 @@ def create_error_response(exception: BaseAppException, request: Request = None) 
     """Create a standardized error response"""
     
     content = ErrorResponse(
+        request_id=request.state.request_id,
         error_code=exception.error_code,
         detail=exception.detail,
         path=request.url.path if request else None,
@@ -126,9 +126,11 @@ def create_error_response(exception: BaseAppException, request: Request = None) 
 def base_exception_handler(request: Request, exception: BaseAppException) -> JSONResponse:
     """Handler for custom exceptions"""
     logger.warning(
-        "%s %s -> %s",
+        "method=%s path=%s status=%s error_code=%s detail=%s",
         request.method,
         request.url.path,
+        exception.status_code,
+        exception.error_code,
         exception.detail,
     )
     return create_error_response(exception, request)        
@@ -136,7 +138,11 @@ def base_exception_handler(request: Request, exception: BaseAppException) -> JSO
         
 def general_exception_handler(request: Request, exception: Exception) -> JSONResponse:
     """Handler for all unhandled exceptions"""    
-    logger.exception(exception)
+    logger.exception(
+        "method=%s path=%s",
+        request.method,
+        request.url.path,                     
+    )
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         content={

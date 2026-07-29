@@ -4,6 +4,7 @@ from pydantic import BaseModel, Field
 
 
 class ErrorResponse(BaseModel):
+    request_id: str
     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     error_code: str
     detail: str
