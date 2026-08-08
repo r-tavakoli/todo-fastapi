@@ -21,6 +21,12 @@ class DatabaseSettings(BaseSettings):
     POSTGRE_USER_NAME: str
     POSTGRE_PASSWORD: str
     
+    POSTGRE_TEST_SERVER: str
+    POSTGRE_TEST_PORT: int
+    POSTGRE_TEST_DB: str
+    POSTGRE_TEST_USER_NAME: str
+    POSTGRE_TEST_PASSWORD: str    
+    
     REDIS_SERVER: str
     REDIS_PORT: int
     REDIS_DB: int
@@ -33,6 +39,10 @@ class DatabaseSettings(BaseSettings):
     def POSTGRES_URL(self):
         return f"postgresql+asyncpg://{self.POSTGRE_USER_NAME}:{self.POSTGRE_PASSWORD}@{self.POSTGRE_SERVER}:{self.POSTGRE_PORT}/{self.POSTGRE_DB}"
 
+    @property
+    def POSTGRES_TEST_DB_URL(self):
+        return f"postgresql+asyncpg://{self.POSTGRE_TEST_USER_NAME}:{self.POSTGRE_TEST_PASSWORD}@{self.POSTGRE_TEST_SERVER}:{self.POSTGRE_TEST_PORT}/{self.POSTGRE_TEST_DB}"
+    
     @property
     def REDIS_URL(self):
         # connection_url = f"redis://{self.REDIS_USER_NAME}:{self.REDIS_PASSWORD}@{self.REDIS_SERVER}:{self.REDIS_PORT}/{self.REDIS_DB}"

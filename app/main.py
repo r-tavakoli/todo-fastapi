@@ -20,6 +20,17 @@ async def lifespan_handler(app: FastAPI):
     yield
 
 app = FastAPI(
+    title="ToDo App",
+    # description="Tasks will be done one day",
+    # # docs_url=None,
+    # # redoc_url=None,
+    # version="0.1.0",
+    # # terms_of_service=,
+    # contact={
+    #     "name": "ToDo Support",
+    #     "url": "",
+    #     "email": "rahtav68@gmail.com"
+    # },
     # Server start/stop listener
     lifespan=lifespan_handler,
 )
@@ -34,6 +45,11 @@ add_exception_handlers(app)
 
 app.include_router(v1_router, prefix="/api/v1")
 
+
+
+@app.get("/test")
+def get_test():
+    return {"test": "everything is fine"}
 
 ### Scalar API Documentation
 @app.get("/scalar", include_in_schema=False)

@@ -14,15 +14,15 @@ def setup_logging():
     console_handler = logging.StreamHandler()
     console_handler.setFormatter(formatter)
 
-    file_handler = RotatingFileHandler(
-        log_dir / "app.log",
-        maxBytes=5 * 1024 * 1024,  # 5 MB
-        backupCount=5,
-    )
-    file_handler.setFormatter(formatter)
+    # file_handler = RotatingFileHandler(
+    #     log_dir / "app.log",
+    #     maxBytes=5 * 1024 * 1024,  # 5 MB
+    #     backupCount=5,
+    # )
+    # file_handler.setFormatter(formatter)
 
     root_logger = logging.getLogger()
     root_logger.setLevel(logging.INFO)
 
     root_logger.addHandler(console_handler)
-    root_logger.addHandler(file_handler)
+    # root_logger.addHandler(file_handler)
